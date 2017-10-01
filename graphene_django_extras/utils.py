@@ -102,7 +102,7 @@ def recursive_params(selection_set, available_related_fields, select_related, pr
                 prefetch_related.append(temp.name)
             elif temp.name not in select_related:
                 select_related.append(temp.name)
-        elif field.selection_set:
+        elif hasattr(field, 'selection_set') and field.selection_set:
             a, b = recursive_params(field.selection_set, available_related_fields, select_related, prefetch_related)
             [select_related.append(x) for x in a if x not in select_related]
             [prefetch_related.append(x) for x in b if x not in prefetch_related]
@@ -131,9 +131,9 @@ def queryset_factory(manager, fields_asts=None, filtering_args=None, **kwargs):
         select_related, prefetch_related = recursive_params(fields_asts[0].selection_set, available_related_fields, select_related, prefetch_related)
 
     if select_related and prefetch_related:
-        return manager.filter(**filter_kwargs).select_related(*select_related).prefetch_related(*prefetch_related)
+        return manager.select_related(*select_related).prefetch_related(*prefetch_related)
     elif not select_related and prefetch_related:
-        return manager.filter(**filter_kwargs).prefetch_related(*prefetch_related)
+        return manager.prefetch_related(*prefetch_related)
     elif select_related and not prefetch_related:
-        return manager.filter(**filter_kwargs).select_related(*select_related)
-    return manager.filter(**filter_kwargs)
+        return manager.select_related(*select_related)
+    return manager

@@ -225,13 +225,11 @@ class DjangoListObjectField(Field):
         return self.type._meta.model
 
     def list_resolver(self, manager, filterset_class, filtering_args, root, info, **kwargs):
-
         qs = queryset_factory(manager, info.field_asts, filtering_args, **kwargs)
-        # filter_kwargs = {k: v for k, v in kwargs.items() if k in filtering_args}
+        filter_kwargs = {k: v for k, v in kwargs.items() if k in filtering_args}
 
-        # qs = manager.get_queryset()
-        # qs = filterset_class(data=filter_kwargs, queryset=qs).qs
-        # qs = manager.get_queryset().filter(**filter_kwargs)
+        qs = manager.get_queryset()
+        qs = filterset_class(data=filter_kwargs, queryset=qs).qs
         count = qs.count()
 
         return DjangoListObjectBase(
